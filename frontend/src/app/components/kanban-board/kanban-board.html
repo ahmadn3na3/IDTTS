@@ -1,0 +1,24 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold text-dark">نظام تتبع المهام (IDTTS)</h1>
+        <button (click)="createTask()" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-lg ms-1"></i> طلب جديد (المبيعات)
+        </button>
+    </div>
+
+    <div class="d-flex overflow-auto pb-4 gap-3">
+        <div *ngFor="let status of columns" class="min-vw-25 bg-white rounded shadow-sm p-3 border"
+            style="min-width: 300px;">
+            <h2 class="h6 fw-bold text-secondary mb-3 d-flex justify-content-between align-items-center">
+                {{ statusMap[status] }}
+                <span class="badge bg-light text-dark border">{{ getTasksByStatus(status).length }}</span>
+            </h2>
+
+            <div class="d-flex flex-column gap-2">
+                <app-task-card *ngFor="let task of getTasksByStatus(status)" [task]="task"
+                    (action)="handleAction($event, task)">
+                </app-task-card>
+            </div>
+        </div>
+    </div>
+</div>
