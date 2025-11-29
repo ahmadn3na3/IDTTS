@@ -37,6 +37,11 @@
 
     <div class="mt-3 d-flex flex-wrap gap-2">
       <!-- Actions based on state -->
+      <button *ngIf="task.status === TaskStatus.NEW && canPerformAction('submitForReview')"
+        (click)="onAction('submitForReview')" class="btn btn-sm btn-primary">
+        إرسال للمراجعة
+      </button>
+
       <button *ngIf="task.status === TaskStatus.UNDER_REVIEW && canPerformAction('approveCredit')"
         (click)="onAction('approveCredit')" class="btn btn-sm btn-primary">
         موافقة الائتمان

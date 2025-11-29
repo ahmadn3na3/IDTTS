@@ -55,6 +55,9 @@ export class KanbanBoardComponent implements OnInit {
     }
 
     switch (event.type) {
+      case 'submitForReview':
+        this.taskService.submitForReview(task.id).subscribe(() => this.loadTasks());
+        break;
       case 'approveCredit':
         this.taskService.approveCredit(task.id).subscribe(() => this.loadTasks());
         break;

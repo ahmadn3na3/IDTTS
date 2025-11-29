@@ -74,6 +74,7 @@ export class TaskCardComponent {
     if (role === UserRole.REGULAR_USER) {
       if (action === 'approveCredit' || action === 'closeTask') return false;
       if (this.currentUser.department === this.task.currentDepartment) {
+        if (action === 'submitForReview') return true;
         return true;
       }
     }

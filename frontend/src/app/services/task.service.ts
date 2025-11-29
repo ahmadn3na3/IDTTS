@@ -211,6 +211,25 @@ export class TaskService {
         return this.http.post<Task>(this.apiUrl, taskData);
     }
 
+    submitForReview(id: string): Observable<Task> {
+        if (this.useMock) {
+            const task = this.mockTasks.find(t => t.id === id);
+            if (task) {
+                task.status = TaskStatus.UNDER_REVIEW;
+                task.currentDepartment = 'Accounts';
+                task.flowLog.push({
+                    status: TaskStatus.UNDER_REVIEW,
+                    department: 'Accounts',
+                    timestamp: new Date(),
+                    action: 'Submitted for Review'
+                });
+                return of(task).pipe(delay(500));
+            }
+            return throwError(() => new Error('Task not found'));
+        }
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/submit-review`, {});
+    }
+
     approveCredit(id: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
