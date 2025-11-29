@@ -1,0 +1,105 @@
+<div class="container mt-4" *ngIf="task">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>تفاصيل المهمة: {{ task.name }}</h2>
+        <a routerLink="/" class="btn btn-outline-secondary">عودة للوحة</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">المعلومات الأساسية</h5>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>الوصف:</strong>
+                            <p class="text-muted">{{ task.description || 'لا يوجد وصف' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>الجهة الطالبة:</strong>
+                            <p class="text-muted">{{ task.requestingParty }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>الحالة:</strong>
+                            <span class="badge bg-info text-dark">{{ statusMap[task.status] }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>الأولوية:</strong>
+                            <span class="badge" [ngClass]="{
+                'bg-danger': task.priority === 'High',
+                'bg-warning': task.priority === 'Medium',
+                'bg-success': task.priority === 'Low'
+              }">{{ priorityMap[task.priority] }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>القسم الحالي:</strong>
+                            <span class="badge bg-secondary">{{ task.currentDepartment }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>تاريخ الإنشاء:</strong>
+                            <p class="text-muted">{{ task.createdAt | date:'medium' }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>تاريخ البدء:</strong>
+                            <p class="text-muted">{{ task.startDate ? (task.startDate | date:'medium') : '-' }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>آخر تحديث:</strong>
+                            <p class="text-muted">{{ task.updatedAt | date:'medium' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">سجل العمليات (History)</h5>
+                    <hr>
+                    <div *ngIf="task.flowLog.length === 0" class="text-muted text-center">لا يوجد سجل عمليات</div>
+                    <ul class="list-group list-group-flush" *ngIf="task.flowLog.length > 0">
+                        <li class="list-group-item" *ngFor="let log of task.flowLog">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ log.action }}</strong>
+                                <span class="text-muted small">{{ log.timestamp | date:'medium' }}</span>
+                            </div>
+                            <div class="small text-muted">
+                                القسم: {{ log.department }} | الحالة: {{ statusMap[log.status] }}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">إحصائيات الوقت</h5>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>الوقت المخطط:</span>
+                        <strong>{{ task.plannedTime }} يوم</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>الوقت الفعلي:</span>
+                        <strong [class.text-danger]="task.actualTime > task.plannedTime">{{ task.actualTime }}
+                            يوم</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-danger" *ngIf="task.obstacle">
+                <div class="card-body text-danger">
+                    <h5 class="card-title">⚠️ عقبة</h5>
+                    <p class="card-text">{{ task.obstacle }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

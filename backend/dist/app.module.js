@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
+const mongoose_1 = require("@nestjs/mongoose");
 const serve_static_1 = require("@nestjs/serve-static");
 const path_1 = require("path");
 const app_controller_1 = require("./app.controller");
@@ -24,16 +24,7 @@ exports.AppModule = AppModule = __decorate([
                 rootPath: (0, path_1.join)(__dirname, '..', 'client'),
                 exclude: ['/api/(.*)'],
             }),
-            typeorm_1.TypeOrmModule.forRoot({
-                type: 'postgres',
-                host: 'localhost',
-                port: 5432,
-                username: 'user',
-                password: 'password',
-                database: 'idtts',
-                autoLoadEntities: true,
-                synchronize: true,
-            }),
+            mongoose_1.MongooseModule.forRoot('mongodb://localhost/idtts'),
             tasks_module_1.TasksModule,
         ],
         controllers: [app_controller_1.AppController],

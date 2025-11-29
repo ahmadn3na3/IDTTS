@@ -14,23 +14,26 @@ export enum TaskStatus {
     CLOSED = 'Closed',
 }
 
-export enum Department {
-    SALES = 'Sales',
-    ACCOUNTS = 'Accounts',
-    PRODUCTION = 'Production',
-    PURCHASING = 'Purchasing',
+export interface FlowLogEntry {
+    status: TaskStatus;
+    department: string;
+    timestamp: Date;
+    action: string;
 }
 
 export interface Task {
     id: string;
+    name: string;
+    description?: string;
     requestingParty: string;
     priority: TaskPriority;
     status: TaskStatus;
+    startDate?: Date;
     plannedTime: number;
     actualTime: number;
     obstacle?: string;
-    currentDepartment: Department;
-    flowLog: any[];
+    currentDepartment: string;
+    flowLog: FlowLogEntry[];
     createdAt: Date;
     updatedAt: Date;
 }

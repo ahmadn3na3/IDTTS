@@ -1,0 +1,55 @@
+<div class="container mt-4">
+    <div class="card shadow-sm" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header bg-white">
+            <h3 class="card-title mb-0">إضافة مهمة جديدة</h3>
+        </div>
+        <div class="card-body">
+            <form (ngSubmit)="save()">
+                <div class="mb-3">
+                    <label for="name" class="form-label">اسم المهمة</label>
+                    <input type="text" class="form-control" id="name" [(ngModel)]="task.name" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">الوصف</label>
+                    <textarea class="form-control" id="description" [(ngModel)]="task.description" name="description"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="requestingParty" class="form-label">الجهة الطالبة</label>
+                    <input type="text" class="form-control" id="requestingParty" [(ngModel)]="task.requestingParty"
+                        name="requestingParty" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="priority" class="form-label">الأولوية</label>
+                    <select class="form-select" id="priority" [(ngModel)]="task.priority" name="priority" required>
+                        <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="department" class="form-label">القسم</label>
+                    <select class="form-select" id="department" [(ngModel)]="task.currentDepartment" name="department"
+                        required>
+                        <option *ngFor="let d of departments" [value]="d.name">{{ d.name }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="plannedTime" class="form-label">الوقت المخطط (بالأيام)</label>
+                    <input type="number" class="form-control" id="plannedTime" [(ngModel)]="task.plannedTime"
+                        name="plannedTime" required min="1">
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a routerLink="/" class="btn btn-secondary">إلغاء</a>
+                    <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+                        {{ isLoading ? 'جاري الحفظ...' : 'حفظ' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

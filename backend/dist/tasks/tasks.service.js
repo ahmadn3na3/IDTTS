@@ -14,17 +14,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TasksService = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
-const task_entity_1 = require("./entities/task.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
+const task_schema_1 = require("./entities/task.schema");
 const task_enums_1 = require("./task.enums");
 let TasksService = class TasksService {
-    tasksRepository;
-    constructor(tasksRepository) {
-        this.tasksRepository = tasksRepository;
+    taskModel;
+    constructor(taskModel) {
+        this.taskModel = taskModel;
     }
     async create(createTaskDto) {
-        const task = this.tasksRepository.create({
+        const createdTask = new this.taskModel({
             ...createTaskDto,
             status: task_enums_1.TaskStatus.UNDER_REVIEW,
             currentDepartment: task_enums_1.Department.ACCOUNTS,
@@ -40,24 +40,24 @@ let TasksService = class TasksService {
                     action: 'Auto-Transition: Sent to Accounts',
                 }],
         });
-        return this.tasksRepository.save(task);
+        return createdTask.save();
     }
     async findAll() {
-        return this.tasksRepository.find({ order: { createdAt: 'DESC' } });
+        return this.taskModel.find().sort({ createdAt: 'desc' }).exec();
     }
     async findOne(id) {
-        const task = await this.tasksRepository.findOneBy({ id });
+        const task = await this.taskModel.findById(id).exec();
         if (!task)
             throw new common_1.NotFoundException(`Task with ID ${id} not found`);
         return task;
     }
     async update(id, updateTaskDto) {
         const task = await this.findOne(id);
-        Object.assign(task, updateTaskDto);
-        return this.tasksRepository.save(task);
+        task.set(updateTaskDto);
+        return task.save();
     }
     async remove(id) {
-        await this.tasksRepository.delete(id);
+        await this.taskModel.findByIdAndDelete(id).exec();
     }
     async approveCredit(id) {
         const task = await this.findOne(id);
@@ -67,7 +67,7 @@ let TasksService = class TasksService {
         task.status = task_enums_1.TaskStatus.IN_PROGRESS;
         task.currentDepartment = task_enums_1.Department.PRODUCTION;
         this.logTransition(task, 'Credit Approved');
-        return this.tasksRepository.save(task);
+        return task.save();
     }
     async reportObstacle(id, obstacle) {
         const task = await this.findOne(id);
@@ -78,7 +78,7 @@ let TasksService = class TasksService {
         task.currentDepartment = task_enums_1.Department.PURCHASING;
         task.obstacle = obstacle;
         this.logTransition(task, `Obstacle Reported: ${obstacle}`);
-        return this.tasksRepository.save(task);
+        return task.save();
     }
     async resolveObstacle(id) {
         const task = await this.findOne(id);
@@ -89,7 +89,7 @@ let TasksService = class TasksService {
         task.currentDepartment = task_enums_1.Department.PRODUCTION;
         task.obstacle = null;
         this.logTransition(task, 'Obstacle Resolved');
-        return this.tasksRepository.save(task);
+        return task.save();
     }
     async completeProduction(id) {
         const task = await this.findOne(id);
@@ -99,7 +99,7 @@ let TasksService = class TasksService {
         task.status = task_enums_1.TaskStatus.COMPLETED;
         task.currentDepartment = task_enums_1.Department.SALES;
         this.logTransition(task, 'Production Completed');
-        return this.tasksRepository.save(task);
+        return task.save();
     }
     async closeTask(id) {
         const task = await this.findOne(id);
@@ -108,7 +108,7 @@ let TasksService = class TasksService {
         }
         task.status = task_enums_1.TaskStatus.CLOSED;
         this.logTransition(task, 'Task Closed');
-        return this.tasksRepository.save(task);
+        return task.save();
     }
     logTransition(task, action) {
         if (!task.flowLog)
@@ -124,7 +124,7 @@ let TasksService = class TasksService {
 exports.TasksService = TasksService;
 exports.TasksService = TasksService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(task_entity_1.Task)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(0, (0, mongoose_1.InjectModel)(task_schema_1.Task.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model])
 ], TasksService);
 //# sourceMappingURL=tasks.service.js.map

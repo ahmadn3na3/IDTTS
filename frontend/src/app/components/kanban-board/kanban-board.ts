@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
-import { Task, TaskStatus, TaskPriority } from '../../models/task.model';
+import { Task, TaskStatus } from '../../models/task.model';
 import { TaskCardComponent } from '../task-card/task-card';
+import { UserService } from '../../services/user.service';
+import { User, UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-kanban-board',
@@ -13,7 +16,7 @@ import { TaskCardComponent } from '../task-card/task-card';
 })
 export class KanbanBoardComponent implements OnInit {
   tasks: Task[] = [];
-  columns = Object.values(TaskStatus);
+  columns: TaskStatus[] = Object.values(TaskStatus) as TaskStatus[];
 
   statusMap: Record<string, string> = {
     [TaskStatus.NEW]: 'جديد',
@@ -25,7 +28,11 @@ export class KanbanBoardComponent implements OnInit {
     [TaskStatus.CLOSED]: 'مغلق'
   };
 
-  constructor(private taskService: TaskService) { }
+  currentUser: User | null = null;
+
+  constructor(private taskService: TaskService, private userService: UserService, private router: Router) {
+    this.userService.currentUser$.subscribe(u => this.currentUser = u);
+  }
 
   ngOnInit() {
     this.loadTasks();
@@ -37,11 +44,16 @@ export class KanbanBoardComponent implements OnInit {
     });
   }
 
-  getTasksByStatus(status: TaskStatus): Task[] {
+  getTasksByStatus(status: string | TaskStatus): Task[] {
     return this.tasks.filter(t => t.status === status);
   }
 
   handleAction(event: { type: string, payload?: any }, task: Task) {
+    if (!this.canPerformAction(event.type, task)) {
+      alert('ليس لديك صلاحية للقيام بهذا الإجراء');
+      return;
+    }
+
     switch (event.type) {
       case 'approveCredit':
         this.taskService.approveCredit(task.id).subscribe(() => this.loadTasks());
@@ -65,18 +77,47 @@ export class KanbanBoardComponent implements OnInit {
   }
 
   createTask() {
-    const requestingParty = prompt('الجهة الطالبة:', 'المبيعات');
-    if (!requestingParty) return;
+    this.router.navigate(['/tasks/new']);
+  }
 
-    const priority = prompt('الأولوية (High, Medium, Low):', 'Medium') as TaskPriority;
-    const plannedTime = Number(prompt('الوقت المخطط (بالأيام):', '5'));
+  canPerformAction(action: string, task: Task): boolean {
+    if (!this.currentUser) return false;
+    const role = this.currentUser.role;
 
-    if (requestingParty && priority && plannedTime) {
-      this.taskService.createTask({
-        requestingParty,
-        priority,
-        plannedTime
-      }).subscribe(() => this.loadTasks());
+    if (role === UserRole.ADMIN || role === UserRole.DEPARTMENT_HEAD) return true;
+
+    // Regular User Logic
+    if (role === UserRole.REGULAR_USER) {
+      // Cannot Approve/Reject (which implies moving status usually, but let's be specific)
+      // Matrix: Approve/Reject = X. Delete = X.
+      // Edit = Check (within department).
+
+      // Actions like 'approveCredit', 'completeProduction' are state changes (Approve/Reject/Move).
+      // Regular users usually work on tasks (e.g. report obstacle, maybe complete?), but matrix says "Approve/Reject" is X.
+      const user = this.currentUser; // Use a local variable for clarity
+
+      if (user.role === UserRole.ADMIN) return true;
+
+      // However, 'reportObstacle' might be considered "Edit" or "Work".
+      // Let's strictly follow: Regular User can Edit (within dept).
+      // Does 'approveCredit' count as Edit? It changes status.
+      // Usually "Approve/Reject" refers to specific approval steps.
+
+      // Department Head: Can do anything on tasks in their department
+      if (user.role === UserRole.DEPARTMENT_HEAD && user.department === task.currentDepartment) {
+        return true;
+      }
+
+      // Regular User: Can do anything EXCEPT approve/close on tasks in their department
+      if (user.role === UserRole.REGULAR_USER && user.department === task.currentDepartment) {
+        if (action === 'approveCredit' || action === 'closeTask') {
+          return false;
+        }
+        return true;
+      }
+
+      return false;
     }
+    return false;
   }
 }

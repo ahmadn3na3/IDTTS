@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
@@ -12,16 +12,7 @@ import { TasksModule } from './tasks/tasks.module';
       rootPath: join(__dirname, '..', 'client'),
       exclude: ['/api/(.*)'],
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'user',
-      password: 'password',
-      database: 'idtts',
-      autoLoadEntities: true,
-      synchronize: true,
-    }),
+    MongooseModule.forRoot('mongodb://localhost/idtts'),
     TasksModule,
   ],
   controllers: [AppController],

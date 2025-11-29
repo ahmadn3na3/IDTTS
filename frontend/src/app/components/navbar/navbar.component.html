@@ -1,0 +1,26 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4" *ngIf="currentUser">
+    <div class="container">
+        <a class="navbar-brand" routerLink="/">نظام تتبع المهام</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/" routerLinkActive="active"
+                        [routerLinkActiveOptions]="{exact: true}">المهام</a>
+                </li>
+                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                    <a class="nav-link" routerLink="/users" routerLinkActive="active">المستخدمين</a>
+                </li>
+                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                    <a class="nav-link" routerLink="/departments" routerLinkActive="active">الأقسام</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center text-white">
+                <span class="ms-3">{{ currentUser.username }} ({{ currentUser.role }})</span>
+                <button class="btn btn-outline-light btn-sm" (click)="logout()">خروج</button>
+            </div>
+        </div>
+    </div>
+</nav>

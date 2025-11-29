@@ -1,0 +1,30 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>إدارة الأقسام</h2>
+        <a routerLink="/departments/new" class="btn btn-primary">إضافة قسم</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>اسم القسم</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let dept of departments">
+                        <td>{{ dept.name }}</td>
+                        <td>
+                            <a [routerLink]="['/departments', dept.id]"
+                                class="btn btn-sm btn-outline-primary me-2">تعديل</a>
+                            <button (click)="deleteDepartment(dept.id)"
+                                class="btn btn-sm btn-outline-danger">حذف</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,21 +1,20 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './entities/task.entity';
+import { Task, TaskDocument } from './entities/task.schema';
 import { TaskStatus, Department } from './task.enums';
 
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectRepository(Task)
-    private tasksRepository: Repository<Task>,
+    @InjectModel(Task.name) private taskModel: Model<Task>,
   ) { }
 
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(createTaskDto: CreateTaskDto): Promise<TaskDocument> {
     // BR-01: Created by Sales -> Under Review -> Accounts
-    const task = this.tasksRepository.create({
+    const createdTask = new this.taskModel({
       ...createTaskDto,
       status: TaskStatus.UNDER_REVIEW,
       currentDepartment: Department.ACCOUNTS,
@@ -31,30 +30,30 @@ export class TasksService {
         action: 'Auto-Transition: Sent to Accounts',
       }],
     });
-    return this.tasksRepository.save(task);
+    return createdTask.save();
   }
 
   async findAll(): Promise<Task[]> {
-    return this.tasksRepository.find({ order: { createdAt: 'DESC' } });
+    return this.taskModel.find().sort({ createdAt: 'desc' }).exec();
   }
 
-  async findOne(id: string): Promise<Task> {
-    const task = await this.tasksRepository.findOneBy({ id });
+  async findOne(id: string): Promise<TaskDocument> {
+    const task = await this.taskModel.findById(id).exec();
     if (!task) throw new NotFoundException(`Task with ID ${id} not found`);
     return task;
   }
 
-  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+  async update(id: string, updateTaskDto: UpdateTaskDto): Promise<TaskDocument> {
     const task = await this.findOne(id);
-    Object.assign(task, updateTaskDto);
-    return this.tasksRepository.save(task);
+    task.set(updateTaskDto);
+    return task.save();
   }
 
   async remove(id: string): Promise<void> {
-    await this.tasksRepository.delete(id);
+    await this.taskModel.findByIdAndDelete(id).exec();
   }
 
-  async approveCredit(id: string): Promise<Task> {
+  async approveCredit(id: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-02: Accounts approves -> In Progress -> Production
     if (task.status !== TaskStatus.UNDER_REVIEW || task.currentDepartment !== Department.ACCOUNTS) {
@@ -64,10 +63,10 @@ export class TasksService {
     task.status = TaskStatus.IN_PROGRESS;
     task.currentDepartment = Department.PRODUCTION;
     this.logTransition(task, 'Credit Approved');
-    return this.tasksRepository.save(task);
+    return task.save();
   }
 
-  async reportObstacle(id: string, obstacle: string): Promise<Task> {
+  async reportObstacle(id: string, obstacle: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-03: Production reports obstacle -> Blocked -> Purchasing
     if (task.currentDepartment !== Department.PRODUCTION) {
@@ -78,10 +77,10 @@ export class TasksService {
     task.currentDepartment = Department.PURCHASING;
     task.obstacle = obstacle;
     this.logTransition(task, `Obstacle Reported: ${obstacle}`);
-    return this.tasksRepository.save(task);
+    return task.save();
   }
 
-  async resolveObstacle(id: string): Promise<Task> {
+  async resolveObstacle(id: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-04: Purchasing confirms -> In Progress -> Production
     if (task.status !== TaskStatus.BLOCKED) {
@@ -92,10 +91,10 @@ export class TasksService {
     task.currentDepartment = Department.PRODUCTION;
     task.obstacle = null;
     this.logTransition(task, 'Obstacle Resolved');
-    return this.tasksRepository.save(task);
+    return task.save();
   }
 
-  async completeProduction(id: string): Promise<Task> {
+  async completeProduction(id: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-05: Production confirms -> Completed -> Sales
     if (task.currentDepartment !== Department.PRODUCTION) {
@@ -105,10 +104,10 @@ export class TasksService {
     task.status = TaskStatus.COMPLETED;
     task.currentDepartment = Department.SALES; // Back to Requesting Party
     this.logTransition(task, 'Production Completed');
-    return this.tasksRepository.save(task);
+    return task.save();
   }
 
-  async closeTask(id: string): Promise<Task> {
+  async closeTask(id: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-61: Close only if Completed
     if (task.status !== TaskStatus.COMPLETED) {
@@ -117,10 +116,10 @@ export class TasksService {
 
     task.status = TaskStatus.CLOSED;
     this.logTransition(task, 'Task Closed');
-    return this.tasksRepository.save(task);
+    return task.save();
   }
 
-  private logTransition(task: Task, action: string) {
+  private logTransition(task: TaskDocument, action: string) {
     if (!task.flowLog) task.flowLog = [];
     task.flowLog.push({
       status: task.status,

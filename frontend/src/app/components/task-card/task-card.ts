@@ -1,20 +1,23 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Task, TaskPriority, TaskStatus, Department } from '../../models/task.model';
+import { RouterModule } from '@angular/router';
+import { Task, TaskPriority, TaskStatus } from '../../models/task.model';
+import { User, UserRole } from '../../models/user.model';
 
 @Component({
   selector: 'app-task-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './task-card.html',
   styleUrl: './task-card.css'
 })
 export class TaskCardComponent {
   @Input() task!: Task;
+  @Input() currentUser: User | null = null;
   @Output() action = new EventEmitter<{ type: string, payload?: any }>();
 
   TaskStatus = TaskStatus;
-  Department = Department;
+
 
   // Arabic Mappings
   priorityMap: Record<string, string> = {
@@ -33,12 +36,7 @@ export class TaskCardComponent {
     [TaskStatus.CLOSED]: 'مغلق'
   };
 
-  departmentMap: Record<string, string> = {
-    [Department.SALES]: 'المبيعات',
-    [Department.ACCOUNTS]: 'الحسابات',
-    [Department.PRODUCTION]: 'الإنتاج',
-    [Department.PURCHASING]: 'المشتريات'
-  };
+
 
   getBorderClass(): string {
     switch (this.task.priority) {
@@ -65,5 +63,21 @@ export class TaskCardComponent {
 
   onAction(type: string, payload?: any) {
     this.action.emit({ type, payload });
+  }
+
+  canPerformAction(action: string): boolean {
+    if (!this.currentUser) return false;
+    const role = this.currentUser.role;
+
+    if (role === UserRole.ADMIN || role === UserRole.DEPARTMENT_HEAD) return true;
+
+    if (role === UserRole.REGULAR_USER) {
+      if (action === 'approveCredit' || action === 'closeTask') return false;
+      if (this.currentUser.department === this.task.currentDepartment) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
