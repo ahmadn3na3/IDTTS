@@ -30,17 +30,49 @@ export class KanbanBoardComponent implements OnInit {
 
   currentUser: User | null = null;
 
+  userMap: Record<string, string> = {};
+  users: User[] = [];
+
   constructor(private taskService: TaskService, private userService: UserService, private router: Router) {
-    this.userService.currentUser$.subscribe(u => this.currentUser = u);
+    this.userService.currentUser$.subscribe(u => {
+      this.currentUser = u;
+      this.loadTasks();
+    });
   }
 
   ngOnInit() {
     this.loadTasks();
+    this.loadUsers();
+  }
+
+  loadUsers() {
+    this.userService.getUsers().subscribe(users => {
+      this.users = users;
+      this.userMap = users.reduce((acc, user) => {
+        acc[user.id] = user.username;
+        return acc;
+      }, {} as Record<string, string>);
+    });
   }
 
   loadTasks() {
     this.taskService.getTasks().subscribe(tasks => {
-      this.tasks = tasks;
+      if (!this.currentUser) {
+        this.tasks = [];
+        return;
+      }
+
+      if (this.currentUser.role === UserRole.ADMIN) {
+        this.tasks = tasks;
+      } else if (this.currentUser.role === UserRole.DEPARTMENT_HEAD) {
+        this.tasks = tasks.filter(t =>
+          t.currentDepartment === this.currentUser?.department ||
+          t.assignedTo === this.currentUser?.id
+        );
+      } else {
+        // Regular User
+        this.tasks = tasks.filter(t => t.assignedTo === this.currentUser?.id);
+      }
     });
   }
 

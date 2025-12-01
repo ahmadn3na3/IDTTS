@@ -23,6 +23,7 @@ export class TaskService {
             plannedTime: 5,
             actualTime: 0,
             currentDepartment: 'Sales',
+            assignedTo: '3', // Assigned to sales_user
             flowLog: [
                 {
                     status: TaskStatus.NEW,
@@ -228,6 +229,26 @@ export class TaskService {
             return throwError(() => new Error('Task not found'));
         }
         return this.http.patch<Task>(`${this.apiUrl}/${id}/submit-review`, {});
+    }
+
+
+
+    assignTask(id: string, userId: string): Observable<Task> {
+        if (this.useMock) {
+            const task = this.mockTasks.find(t => t.id === id);
+            if (task) {
+                task.assignedTo = userId;
+                task.flowLog.push({
+                    status: task.status,
+                    department: task.currentDepartment,
+                    timestamp: new Date(),
+                    action: `Assigned to user ${userId}`
+                });
+                return of(task).pipe(delay(500));
+            }
+            return throwError(() => new Error('Task not found'));
+        }
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/assign`, { userId });
     }
 
     approveCredit(id: string): Observable<Task> {

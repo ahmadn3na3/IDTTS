@@ -33,6 +33,7 @@ export interface Task {
     actualTime: number;
     obstacle?: string;
     currentDepartment: string;
+    assignedTo?: string; // User ID
     flowLog: FlowLogEntry[];
     createdAt: Date;
     updatedAt: Date;

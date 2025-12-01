@@ -40,6 +40,20 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>تعيين إلى:</strong>
+                            <div class="input-group">
+                                <select class="form-select" [(ngModel)]="selectedUserId">
+                                    <option value="" disabled>اختر مستخدم</option>
+                                    <option *ngFor="let user of users" [value]="user.id">{{ user.username }}</option>
+                                </select>
+                                <button class="btn btn-primary" (click)="assignTask()"
+                                    [disabled]="!selectedUserId">حفظ</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4">
                             <strong>تاريخ الإنشاء:</strong>

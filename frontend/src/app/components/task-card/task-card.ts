@@ -14,6 +14,7 @@ import { User, UserRole } from '../../models/user.model';
 export class TaskCardComponent {
   @Input() task!: Task;
   @Input() currentUser: User | null = null;
+  @Input() userMap: Record<string, string> = {};
   @Output() action = new EventEmitter<{ type: string, payload?: any }>();
 
   TaskStatus = TaskStatus;

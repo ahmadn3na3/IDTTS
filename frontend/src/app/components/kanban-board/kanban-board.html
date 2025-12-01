@@ -16,7 +16,7 @@
 
             <div class="d-flex flex-column gap-2">
                 <app-task-card *ngFor="let task of getTasksByStatus(status)" [task]="task" [currentUser]="currentUser"
-                    (action)="handleAction($event, task)">
+                    [userMap]="userMap" (action)="handleAction($event, task)">
                 </app-task-card>
             </div>
         </div>

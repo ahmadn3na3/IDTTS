@@ -25,6 +25,8 @@
 
     <p class="mb-1 text-muted small">الطالب: <span class="fw-medium text-dark">{{ task.requestingParty }}</span></p>
     <p class="mb-1 text-muted small">القسم: <span class="fw-medium text-dark">{{ task.currentDepartment }}</span></p>
+    <p class="mb-1 text-muted small" *ngIf="task.assignedTo">المكلف: <span class="fw-medium text-primary">{{
+        userMap[task.assignedTo] || 'Unknown' }}</span></p>
 
     <div class="mt-2 d-flex justify-content-between small text-secondary">
       <span>المخطط: {{ task.plannedTime }} يوم</span>
