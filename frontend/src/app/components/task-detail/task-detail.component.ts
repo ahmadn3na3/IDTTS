@@ -6,6 +6,8 @@ import { Task, TaskStatus, TaskPriority } from '../../models/task.model';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user.model';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common';
+
 @Component({
     selector: 'app-task-detail',
     standalone: true,
@@ -39,7 +41,8 @@ export class TaskDetailComponent implements OnInit {
     constructor(
         private route: ActivatedRoute,
         private taskService: TaskService,
-        private userService: UserService
+        private userService: UserService,
+        private location: Location
     ) { }
 
     ngOnInit() {
@@ -64,5 +67,9 @@ export class TaskDetailComponent implements OnInit {
                 alert('تم تعيين المهمة بنجاح');
             });
         }
+    }
+
+    goBack(): void {
+        this.location.back();
     }
 }

@@ -16,9 +16,12 @@
                 <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
                     <a class="nav-link" routerLink="/departments" routerLinkActive="active">الأقسام</a>
                 </li>
+                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">لوحة القيادة</a>
+                </li>
             </ul>
             <div class="d-flex align-items-center text-white">
-                <span class="ms-3">{{ currentUser.username }} ({{ currentUser.role }})</span>
+                <span class="ms-3">{{ currentUser.username }} ({{ getArabicRole(currentUser.role) }})</span>
                 <button class="btn btn-outline-light btn-sm" (click)="logout()">خروج</button>
             </div>
         </div>

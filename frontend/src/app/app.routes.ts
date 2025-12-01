@@ -10,9 +10,15 @@ import { TaskDetailComponent } from './components/task-detail/task-detail.compon
 import { AuthGuard } from './guards/auth.guard';
 import { RoleGuard } from './guards/role.guard';
 import { UserRole } from './models/user.model';
+import { CLevelDashboardComponent } from './components/c-level-dashboard/c-level-dashboard.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
+    {
+        path: 'dashboard',
+        component: CLevelDashboardComponent,
+        canActivate: [AuthGuard]
+    },
     {
         path: 'users',
         component: UserListComponent,

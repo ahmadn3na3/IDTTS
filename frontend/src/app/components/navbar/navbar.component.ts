@@ -23,4 +23,13 @@ export class NavbarComponent {
         this.userService.logout();
         this.router.navigate(['/login']);
     }
+
+    getArabicRole(role: string): string {
+        const roleMap: { [key: string]: string } = {
+            'Admin': 'مدير النظام',
+            'Department Head': 'رئيس قسم',
+            'Regular User': 'مستخدم'
+        };
+        return roleMap[role] || role;
+    }
 }
