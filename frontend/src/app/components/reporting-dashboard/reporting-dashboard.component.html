@@ -1,0 +1,69 @@
+<div class="container mt-4" dir="rtl">
+  <header class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 m-0">لوحة متابعة المهام والتقارير</h1>
+    <div class="nav nav-pills" role="tablist">
+      <button class="nav-link" [class.active]="activeTab === 'priority'" (click)="switchTab('priority')">
+        الأهمية</button>
+      <button class="nav-link" [class.active]="activeTab === 'department'" (click)="switchTab('department')">
+        الأقسام</button>
+      <button class="nav-link" [class.active]="activeTab === 'status'" (click)="switchTab('status')">الحالة</button>
+    </div>
+  </header>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row g-4">
+        <!-- Chart Column -->
+        <div class="col-lg-7">
+          <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item active" aria-current="page" #breadcrumb>الرئيسية</li>
+            </ol>
+          </nav>
+          <h5 class="card-title fw-bold mb-3" #chartTitle></h5>
+          <div class="position-relative w-100 d-flex justify-content-center" style="height: 400px;">
+            <canvas baseChart [data]="chartData" [options]="chartOptions" [type]="chartType"
+              (chartClick)="chartClicked($event)">
+            </canvas>
+          </div>
+        </div>
+
+        <!-- Details Column -->
+        <div class="col-lg-5">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0">تفاصيل / قائمة المهام</h5>
+            <small class="text-muted" #modeIndicator>عرض حسب: الأهمية</small>
+          </div>
+
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <span class="badge bg-warning text-dark border border-warning">جاري العمل ({{counts.in_progress}})</span>
+            <span class="badge bg-danger border border-danger">متوقف ({{counts.stopped}})</span>
+            <span class="badge bg-success border border-success">تم ({{counts.done}})</span>
+          </div>
+
+          <div class="list-group mb-4 overflow-auto" style="max-height: 400px;">
+            <ng-container *ngIf="displayedTasks.length > 0; else noTasks">
+              <a *ngFor="let t of displayedTasks" href="javascript:void(0)"
+                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                (click)="onTaskClick(t.id)">
+                <div>
+                  <h6 class="mb-1" [style.color]="currentDepartment?.text_color">{{t.name_ar}}</h6>
+                  <small class="text-muted">
+                    أولوية: {{t.priority==='high'?'هام': t.priority==='medium'?'متوسط':'منخفض'}} • حالة:
+                    {{t.status==='in_progress'?'جاري العمل': t.status==='stopped'?'متوقف':'تم'}}
+                  </small>
+                </div>
+                <span class="badge rounded-pill" [style.backgroundColor]="COLORS.priority[t.priority]">
+                  {{t.priority === 'high' ? '!' : t.priority === 'medium' ? '~' : '-'}}
+                </span>
+              </a>
+            </ng-container>
+            <ng-template #noTasks>
+              <div class="text-muted p-3">لا توجد مهام للعرض.</div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

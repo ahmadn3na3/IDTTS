@@ -53,6 +53,11 @@ export const routes: Routes = [
         component: TaskDetailComponent,
         canActivate: [AuthGuard]
     },
+    {
+        path: 'reporting',
+        loadComponent: () => import('./components/reporting-dashboard/reporting-dashboard.component').then(m => m.ReportingDashboardComponent),
+        canActivate: [AuthGuard]
+    },
     { path: '', component: KanbanBoardComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '' }
 ];
