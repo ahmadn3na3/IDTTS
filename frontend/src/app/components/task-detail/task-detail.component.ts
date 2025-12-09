@@ -72,4 +72,9 @@ export class TaskDetailComponent implements OnInit {
     goBack(): void {
         this.location.back();
     }
+
+    getNotes() {
+        if (!this.task) return [];
+        return this.task.flowLog.filter(log => log.reason);
+    }
 }

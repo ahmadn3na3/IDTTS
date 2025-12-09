@@ -85,6 +85,9 @@
                             <div class="small text-muted">
                                 القسم: {{ log.department }} | الحالة: {{ statusMap[log.status] }}
                             </div>
+                            <div class="small text-danger mt-1" *ngIf="log.reason">
+                                ملاحظة: {{ log.reason }}
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -112,6 +115,23 @@
                 <div class="card-body text-danger">
                     <h5 class="card-title">⚠️ عقبة</h5>
                     <p class="card-text">{{ task.obstacle }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">الملاحظات (Notes)</h5>
+                    <hr>
+                    <div *ngIf="getNotes().length === 0" class="text-muted text-center small">لا توجد ملاحظات</div>
+                    <ul class="list-group list-group-flush" *ngIf="getNotes().length > 0">
+                        <li class="list-group-item" *ngFor="let note of getNotes()">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ note.action }}</strong>
+                                <span class="text-muted small">{{ note.timestamp | date:'short' }}</span>
+                            </div>
+                            <p class="mb-0 mt-1 small">{{ note.reason }}</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -20,6 +20,7 @@ export class TaskService {
             priority: TaskPriority.HIGH,
             status: TaskStatus.NEW,
             startDate: new Date(),
+            dueDate: new Date(Date.now() + 432000000), // 5 days from now
             plannedTime: 5,
             actualTime: 0,
             currentDepartment: 'Sales',
@@ -42,6 +43,7 @@ export class TaskService {
             requestingParty: 'Sales Team B',
             priority: TaskPriority.MEDIUM,
             status: TaskStatus.UNDER_REVIEW,
+            dueDate: new Date(Date.now() - 86400000), // Yesterday (Overdue)
             plannedTime: 3,
             actualTime: 1,
             currentDepartment: 'Accounts',
@@ -69,6 +71,7 @@ export class TaskService {
             requestingParty: 'Marketing',
             priority: TaskPriority.LOW,
             status: TaskStatus.IN_PROGRESS,
+            dueDate: new Date(Date.now() + 864000000), // 10 days
             plannedTime: 10,
             actualTime: 4,
             currentDepartment: 'Production',
@@ -102,6 +105,7 @@ export class TaskService {
             requestingParty: 'Management',
             priority: TaskPriority.HIGH,
             status: TaskStatus.BLOCKED,
+            dueDate: new Date(Date.now() - 172800000), // 2 days overdue
             plannedTime: 7,
             actualTime: 3,
             obstacle: 'Missing raw materials',
@@ -142,6 +146,7 @@ export class TaskService {
             requestingParty: 'Sales Team C',
             priority: TaskPriority.MEDIUM,
             status: TaskStatus.COMPLETED,
+            dueDate: new Date(Date.now() + 172800000),
             plannedTime: 2,
             actualTime: 2,
             currentDepartment: 'Sales',
@@ -204,7 +209,8 @@ export class TaskService {
                     action: 'Created'
                 }],
                 createdAt: new Date(),
-                updatedAt: new Date()
+                updatedAt: new Date(),
+                dueDate: taskData.dueDate || new Date(Date.now() + (taskData.plannedTime || 0) * 86400000)
             };
             this.mockTasks.unshift(newTask);
             return of(newTask).pipe(delay(500));
@@ -212,7 +218,7 @@ export class TaskService {
         return this.http.post<Task>(this.apiUrl, taskData);
     }
 
-    submitForReview(id: string): Observable<Task> {
+    submitForReview(id: string, reason?: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
             if (task) {
@@ -222,13 +228,14 @@ export class TaskService {
                     status: TaskStatus.UNDER_REVIEW,
                     department: 'Accounts',
                     timestamp: new Date(),
-                    action: 'Submitted for Review'
+                    action: 'Submitted for Review',
+                    reason: reason
                 });
                 return of(task).pipe(delay(500));
             }
             return throwError(() => new Error('Task not found'));
         }
-        return this.http.patch<Task>(`${this.apiUrl}/${id}/submit-review`, {});
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/submit-review`, { reason });
     }
 
 
@@ -251,7 +258,7 @@ export class TaskService {
         return this.http.patch<Task>(`${this.apiUrl}/${id}/assign`, { userId });
     }
 
-    approveCredit(id: string): Observable<Task> {
+    approveCredit(id: string, reason?: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
             if (task) {
@@ -261,13 +268,14 @@ export class TaskService {
                     status: TaskStatus.IN_PROGRESS,
                     department: 'Production',
                     timestamp: new Date(),
-                    action: 'Credit Approved'
+                    action: 'Credit Approved',
+                    reason: reason
                 });
                 return of(task).pipe(delay(500));
             }
             return throwError(() => new Error('Task not found'));
         }
-        return this.http.patch<Task>(`${this.apiUrl}/${id}/approve-credit`, {});
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/approve-credit`, { reason });
     }
 
     reportObstacle(id: string, obstacle: string): Observable<Task> {
@@ -290,7 +298,7 @@ export class TaskService {
         return this.http.patch<Task>(`${this.apiUrl}/${id}/report-obstacle`, { obstacle });
     }
 
-    resolveObstacle(id: string): Observable<Task> {
+    resolveObstacle(id: string, reason?: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
             if (task) {
@@ -301,16 +309,17 @@ export class TaskService {
                     status: TaskStatus.IN_PROGRESS,
                     department: 'Production',
                     timestamp: new Date(),
-                    action: 'Obstacle Resolved'
+                    action: 'Obstacle Resolved',
+                    reason: reason
                 });
                 return of(task).pipe(delay(500));
             }
             return throwError(() => new Error('Task not found'));
         }
-        return this.http.patch<Task>(`${this.apiUrl}/${id}/resolve-obstacle`, {});
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/resolve-obstacle`, { reason });
     }
 
-    completeProduction(id: string): Observable<Task> {
+    completeProduction(id: string, reason?: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
             if (task) {
@@ -320,16 +329,17 @@ export class TaskService {
                     status: TaskStatus.COMPLETED,
                     department: 'Sales',
                     timestamp: new Date(),
-                    action: 'Production Completed'
+                    action: 'Production Completed',
+                    reason: reason
                 });
                 return of(task).pipe(delay(500));
             }
             return throwError(() => new Error('Task not found'));
         }
-        return this.http.patch<Task>(`${this.apiUrl}/${id}/complete-production`, {});
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/complete-production`, { reason });
     }
 
-    closeTask(id: string): Observable<Task> {
+    closeTask(id: string, reason?: string): Observable<Task> {
         if (this.useMock) {
             const task = this.mockTasks.find(t => t.id === id);
             if (task) {
@@ -338,12 +348,13 @@ export class TaskService {
                     status: TaskStatus.CLOSED,
                     department: task.currentDepartment,
                     timestamp: new Date(),
-                    action: 'Task Closed'
+                    action: 'Task Closed',
+                    reason: reason
                 });
                 return of(task).pipe(delay(500));
             }
             return throwError(() => new Error('Task not found'));
         }
-        return this.http.patch<Task>(`${this.apiUrl}/${id}/close`, {});
+        return this.http.patch<Task>(`${this.apiUrl}/${id}/close`, { reason });
     }
 }

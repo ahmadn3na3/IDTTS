@@ -21,4 +21,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Reason Modal -->
+    <div class="modal fade show" tabindex="-1" *ngIf="showModal" style="display: block; background: rgba(0,0,0,0.5);"
+        role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ modalTitle }}</h5>
+                    <button type="button" class="btn-close" (click)="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="reasonInput" class="form-label" *ngIf="isObstacle">وصف العقبة (مطلوب)</label>
+                        <label for="reasonInput" class="form-label" *ngIf="!isObstacle">السبب / الملاحظة</label>
+                        <textarea class="form-control" id="reasonInput" rows="4" [(ngModel)]="modalReason"
+                            placeholder="أدخل التفاصيل هنا..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeModal()">إلغاء</button>
+                    <button type="button" class="btn btn-primary" (click)="confirmAction()"
+                        [disabled]="isObstacle && !modalReason">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

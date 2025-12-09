@@ -19,8 +19,22 @@
                 <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
                     <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">لوحة القيادة</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/reporting" routerLinkActive="active">التقارير</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        التقارير
+                    </a>
+                    <ul class="dropdown-menu text-end" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" routerLink="/reporting" routerLinkActive="active">لوحة التقارير
+                                العامة</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" routerLink="/reports/time-deviation"
+                                routerLinkActive="active">تقرير انحراف الوقت</a></li>
+                        <li><a class="dropdown-item" routerLink="/reports/stopped-tasks" routerLinkActive="active">تقرير
+                                المهام المتوقفة (Detailed)</a></li>
+                    </ul>
                 </li>
             </ul>
             <div class="d-flex align-items-center text-white">

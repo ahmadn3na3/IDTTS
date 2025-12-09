@@ -1,0 +1,68 @@
+<div class="container mt-4" dir="rtl">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 m-0">تقرير انحراف الوقت (Time Deviation Report)</h1>
+        <a routerLink="/dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i> العودة للوحة القيادة
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">مقارنة الوقت المخطط vs الفعلي (لكل قسم)</h5>
+            <div class="chart-container">
+                <canvas baseChart [data]="chartData" [options]="chartOptions" type="bar">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">تفاصيل المهام (الأكثر تأخيراً)</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>المهمة</th>
+                            <th>القسم</th>
+                            <th>الوقت المخطط</th>
+                            <th>الوقت الفعلي</th>
+                            <th>الانحراف</th>
+                            <th>نسبة الإنجاز</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let t of displayedTasks; let i = index" [class.table-danger]="t.delay > 0"
+                            style="cursor: pointer;" (click)="onTaskClick(t.id)">
+                            <td>
+                                <div class="fw-bold">{{t.name}}</div>
+                                <small class="text-muted">{{t.id}}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{t.currentDepartment}}</span>
+                            </td>
+                            <td>{{t.plannedTime || 0}} يوم</td>
+                            <td>{{t.actualTime || 0}} يوم</td>
+                            <td>
+                                <span *ngIf="t.delay > 0" class="text-danger fw-bold">+{{t.delay}} يوم</span>
+                                <span *ngIf="t.delay <= 0" class="text-success">{{t.delay}} يوم</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1" style="height: 6px;">
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            [style.width.%]="t.completionPercentage || 0"></div>
+                                    </div>
+                                    <span class="ms-2 small">{{t.completionPercentage || 0}}%</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr *ngIf="displayedTasks.length === 0">
+                            <td colspan="6" class="text-center text-muted py-4">لا توجد بيانات للعرض</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

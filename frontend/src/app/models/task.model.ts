@@ -19,6 +19,7 @@ export interface FlowLogEntry {
     department: string;
     timestamp: Date;
     action: string;
+    reason?: string;
 }
 
 export interface Task {
@@ -29,6 +30,7 @@ export interface Task {
     priority: TaskPriority;
     status: TaskStatus;
     startDate?: Date;
+    dueDate?: Date;
     plannedTime: number;
     actualTime: number;
     obstacle?: string;

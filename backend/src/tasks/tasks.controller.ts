@@ -33,8 +33,8 @@ export class TasksController {
   }
 
   @Patch(':id/approve-credit')
-  approveCredit(@Param('id') id: string) {
-    return this.tasksService.approveCredit(id);
+  approveCredit(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.tasksService.approveCredit(id, reason);
   }
 
   @Patch(':id/report-obstacle')
@@ -43,17 +43,21 @@ export class TasksController {
   }
 
   @Patch(':id/resolve-obstacle')
-  resolveObstacle(@Param('id') id: string) {
-    return this.tasksService.resolveObstacle(id);
+  resolveObstacle(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.tasksService.resolveObstacle(id, reason);
   }
 
   @Patch(':id/complete-production')
-  completeProduction(@Param('id') id: string) {
-    return this.tasksService.completeProduction(id);
+  completeProduction(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.tasksService.completeProduction(id, reason);
   }
 
   @Patch(':id/close')
-  closeTask(@Param('id') id: string) {
-    return this.tasksService.closeTask(id);
+  closeTask(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.tasksService.closeTask(id, reason);
+  }
+  @Patch(':id/submit-review')
+  submitForReview(@Param('id') id: string, @Body('reason') reason?: string) {
+    return this.tasksService.submitForReview(id, reason);
   }
 }

@@ -53,7 +53,7 @@ export class TasksService {
     await this.taskModel.findByIdAndDelete(id).exec();
   }
 
-  async approveCredit(id: string): Promise<TaskDocument> {
+  async approveCredit(id: string, reason?: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-02: Accounts approves -> In Progress -> Production
     if (task.status !== TaskStatus.UNDER_REVIEW || task.currentDepartment !== Department.ACCOUNTS) {
@@ -62,7 +62,15 @@ export class TasksService {
 
     task.status = TaskStatus.IN_PROGRESS;
     task.currentDepartment = Department.PRODUCTION;
-    this.logTransition(task, 'Credit Approved');
+    this.logTransition(task, 'Credit Approved', reason);
+    return task.save();
+  }
+
+  async submitForReview(id: string, reason?: string): Promise<TaskDocument> {
+    const task = await this.findOne(id);
+    task.status = TaskStatus.UNDER_REVIEW;
+    task.currentDepartment = Department.ACCOUNTS;
+    this.logTransition(task, 'Submitted for Review', reason);
     return task.save();
   }
 
@@ -80,7 +88,7 @@ export class TasksService {
     return task.save();
   }
 
-  async resolveObstacle(id: string): Promise<TaskDocument> {
+  async resolveObstacle(id: string, reason?: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-04: Purchasing confirms -> In Progress -> Production
     if (task.status !== TaskStatus.BLOCKED) {
@@ -90,11 +98,11 @@ export class TasksService {
     task.status = TaskStatus.IN_PROGRESS;
     task.currentDepartment = Department.PRODUCTION;
     task.obstacle = null;
-    this.logTransition(task, 'Obstacle Resolved');
+    this.logTransition(task, 'Obstacle Resolved', reason);
     return task.save();
   }
 
-  async completeProduction(id: string): Promise<TaskDocument> {
+  async completeProduction(id: string, reason?: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-05: Production confirms -> Completed -> Sales
     if (task.currentDepartment !== Department.PRODUCTION) {
@@ -103,11 +111,11 @@ export class TasksService {
 
     task.status = TaskStatus.COMPLETED;
     task.currentDepartment = Department.SALES; // Back to Requesting Party
-    this.logTransition(task, 'Production Completed');
+    this.logTransition(task, 'Production Completed', reason);
     return task.save();
   }
 
-  async closeTask(id: string): Promise<TaskDocument> {
+  async closeTask(id: string, reason?: string): Promise<TaskDocument> {
     const task = await this.findOne(id);
     // BR-61: Close only if Completed
     if (task.status !== TaskStatus.COMPLETED) {
@@ -115,17 +123,21 @@ export class TasksService {
     }
 
     task.status = TaskStatus.CLOSED;
-    this.logTransition(task, 'Task Closed');
+    this.logTransition(task, 'Task Closed', reason);
     return task.save();
   }
 
-  private logTransition(task: TaskDocument, action: string) {
+  private logTransition(task: TaskDocument, action: string, reason?: string) {
     if (!task.flowLog) task.flowLog = [];
-    task.flowLog.push({
+    const entry: any = {
       status: task.status,
       department: task.currentDepartment,
       timestamp: new Date(),
       action,
-    });
+    };
+    if (reason) {
+      entry.reason = reason;
+    }
+    task.flowLog.push(entry);
   }
 }

@@ -58,6 +58,16 @@ export const routes: Routes = [
         loadComponent: () => import('./components/reporting-dashboard/reporting-dashboard.component').then(m => m.ReportingDashboardComponent),
         canActivate: [AuthGuard]
     },
+    {
+        path: 'reports/time-deviation',
+        loadComponent: () => import('./components/time-deviation-report/time-deviation-report').then(m => m.TimeDeviationReportComponent),
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'reports/stopped-tasks',
+        loadComponent: () => import('./components/stopped-tasks-report/stopped-tasks-report').then(m => m.StoppedTasksReportComponent),
+        canActivate: [AuthGuard]
+    },
     { path: '', component: KanbanBoardComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '' }
 ];

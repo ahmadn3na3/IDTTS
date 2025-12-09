@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { Task, TaskStatus } from '../../models/task.model';
@@ -10,7 +11,7 @@ import { User, UserRole } from '../../models/user.model';
 @Component({
   selector: 'app-kanban-board',
   standalone: true,
-  imports: [CommonModule, TaskCardComponent],
+  imports: [CommonModule, TaskCardComponent, FormsModule],
   templateUrl: './kanban-board.html',
   styleUrl: './kanban-board.css'
 })
@@ -32,6 +33,14 @@ export class KanbanBoardComponent implements OnInit {
 
   userMap: Record<string, string> = {};
   users: User[] = [];
+
+  // Modal State
+  showModal: boolean = false;
+  modalTask: Task | null = null;
+  modalAction: string = '';
+  modalReason: string = '';
+  modalTitle: string = '';
+  isObstacle: boolean = false;
 
   constructor(private taskService: TaskService, private userService: UserService, private router: Router) {
     this.userService.currentUser$.subscribe(u => {
@@ -86,29 +95,74 @@ export class KanbanBoardComponent implements OnInit {
       return;
     }
 
+    // Open Modal instead of prompt
+    this.modalTask = task;
+    this.modalAction = event.type;
+    this.modalReason = '';
+    this.isObstacle = false;
+
     switch (event.type) {
       case 'submitForReview':
-        this.taskService.submitForReview(task.id).subscribe(() => this.loadTasks());
+        this.modalTitle = 'إرسال للمراجعة - أدخل ملاحظة (اختياري)';
         break;
       case 'approveCredit':
-        this.taskService.approveCredit(task.id).subscribe(() => this.loadTasks());
+        this.modalTitle = 'الموافقة على الاعتماد - أدخل ملاحظة (اختياري)';
         break;
       case 'reportObstacle':
-        const obstacle = prompt('أدخل وصف العقبة:');
-        if (obstacle) {
-          this.taskService.reportObstacle(task.id, obstacle).subscribe(() => this.loadTasks());
+        this.modalTitle = 'الإبلاغ عن عقبة';
+        this.isObstacle = true;
+        break;
+      case 'resolveObstacle':
+        this.modalTitle = 'حل العقبة - أدخل ملاحظة (اختياري)';
+        break;
+      case 'completeProduction':
+        this.modalTitle = 'إتمام الإنتاج - أدخل ملاحظة (اختياري)';
+        break;
+      case 'closeTask':
+        this.modalTitle = 'إغلاق المهمة - أدخل ملاحظة (اختياري)';
+        break;
+    }
+
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.modalTask = null;
+    this.modalAction = '';
+    this.modalReason = '';
+  }
+
+  confirmAction() {
+    if (!this.modalTask) return;
+
+    const task = this.modalTask;
+    const reason = this.modalReason; // For obstacles this works too (as payload)
+
+    switch (this.modalAction) {
+      case 'submitForReview':
+        this.taskService.submitForReview(task.id, reason).subscribe(() => this.loadTasks());
+        break;
+      case 'approveCredit':
+        this.taskService.approveCredit(task.id, reason).subscribe(() => this.loadTasks());
+        break;
+      case 'reportObstacle':
+        if (reason) {
+          this.taskService.reportObstacle(task.id, reason).subscribe(() => this.loadTasks());
         }
         break;
       case 'resolveObstacle':
-        this.taskService.resolveObstacle(task.id).subscribe(() => this.loadTasks());
+        this.taskService.resolveObstacle(task.id, reason).subscribe(() => this.loadTasks());
         break;
       case 'completeProduction':
-        this.taskService.completeProduction(task.id).subscribe(() => this.loadTasks());
+        this.taskService.completeProduction(task.id, reason).subscribe(() => this.loadTasks());
         break;
       case 'closeTask':
-        this.taskService.closeTask(task.id).subscribe(() => this.loadTasks());
+        this.taskService.closeTask(task.id, reason).subscribe(() => this.loadTasks());
         break;
     }
+
+    this.closeModal();
   }
 
   createTask() {
