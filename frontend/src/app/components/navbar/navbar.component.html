@@ -1,45 +1,96 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4" *ngIf="currentUser">
-    <div class="container">
-        <a class="navbar-brand" routerLink="/">نظام تتبع المهام</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+<nav class="navbar navbar-dark bg-primary mb-4" *ngIf="currentUser">
+    <div class="container justify-content-start gap-2">
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+            aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/" routerLinkActive="active"
-                        [routerLinkActiveOptions]="{exact: true}">المهام</a>
-                </li>
-                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
-                    <a class="nav-link" routerLink="/users" routerLinkActive="active">المستخدمين</a>
-                </li>
-                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
-                    <a class="nav-link" routerLink="/departments" routerLinkActive="active">الأقسام</a>
-                </li>
-                <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
-                    <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">لوحة القيادة</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        التقارير
-                    </a>
-                    <ul class="dropdown-menu text-end" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" routerLink="/reporting" routerLinkActive="active">لوحة التقارير
-                                العامة</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
+        <a class="navbar-brand" routerLink="/">نظام تتبع المهام</a>
+        <div class="offcanvas offcanvas-end text-bg-primary" tabindex="-1" id="offcanvasNavbar"
+            aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title text-white" id="offcanvasNavbarLabel">القائمة</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-3">
+                <div class="d-flex flex-column h-100">
+                    <ul class="nav nav-pills flex-column mb-auto pe-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-white mb-2" routerLink="/"
+                                routerLinkActive="active bg-white text-primary"
+                                [routerLinkActiveOptions]="{exact: true}" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-kanban me-2 ms-2"></i> المهام
+                            </a>
                         </li>
-                        <li><a class="dropdown-item" routerLink="/reports/time-deviation"
-                                routerLinkActive="active">تقرير انحراف الوقت</a></li>
-                        <li><a class="dropdown-item" routerLink="/reports/stopped-tasks" routerLinkActive="active">تقرير
-                                المهام المتوقفة (Detailed)</a></li>
+                        <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                            <a class="nav-link text-white mb-2" routerLink="/users"
+                                routerLinkActive="active bg-white text-primary" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-people me-2 ms-2"></i> المستخدمين
+                            </a>
+                        </li>
+                        <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                            <a class="nav-link text-white mb-2" routerLink="/departments"
+                                routerLinkActive="active bg-white text-primary" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-building me-2 ms-2"></i> الأقسام
+                            </a>
+                        </li>
+                        <li class="nav-item" *ngIf="currentUser.role === UserRole.ADMIN">
+                            <a class="nav-link text-white mb-2" routerLink="/dashboard"
+                                routerLinkActive="active bg-white text-primary" data-bs-dismiss="offcanvas">
+                                <i class="bi bi-speedometer2 me-2 ms-2"></i> لوحة القيادة
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <!-- Reports Dropdown customized for Sidebar -->
+                            <a class="nav-link text-white dropdown-toggle mb-2" href="#" id="reportsDropdown"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                                routerLinkActive="active bg-white text-primary"
+                                [routerLinkActiveOptions]="{exact: false}">
+                                <i class="bi bi-graph-up me-2 ms-2"></i> التقارير
+                            </a>
+                            <ul class="dropdown-menu text-end shadow" aria-labelledby="reportsDropdown">
+                                <li>
+                                    <a class="dropdown-item" routerLink="/reporting" routerLinkActive="active"
+                                        data-bs-dismiss="offcanvas">
+                                        لوحة التقارير العامة
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" routerLink="/reports/time-deviation"
+                                        routerLinkActive="active" data-bs-dismiss="offcanvas">
+                                        تقرير انحراف الوقت
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" routerLink="/reports/stopped-tasks"
+                                        routerLinkActive="active" data-bs-dismiss="offcanvas">
+                                        تقرير المهام المتوقفة (Detailed)
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
-                </li>
-            </ul>
-            <div class="d-flex align-items-center text-white">
-                <span class="ms-3">{{ currentUser.username }} ({{ getArabicRole(currentUser.role) }})</span>
-                <button class="btn btn-outline-light btn-sm" (click)="logout()">خروج</button>
+
+                    <hr class="text-white opacity-50">
+
+                    <div class="dropdown mt-auto">
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                            id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center me-2 ms-2"
+                                style="width: 32px; height: 32px; font-weight: bold;">
+                                {{ currentUser.username.charAt(0).toUpperCase() }}
+                            </div>
+                            <strong>{{ currentUser.username }} ({{ getArabicRole(currentUser.role) }})</strong>
+                        </a>
+                        <ul class="dropdown-menu text-end shadow" aria-labelledby="dropdownUser1">
+                            <li><button class="dropdown-item" (click)="logout()" data-bs-dismiss="offcanvas">تسجيل
+                                    خروج</button></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

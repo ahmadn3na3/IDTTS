@@ -6,7 +6,8 @@
         </button>
     </div>
 
-    <div class="d-flex overflow-auto pb-4 gap-3">
+    <!-- Desktop View: Horizontal Board -->
+    <div class="d-none d-md-flex overflow-auto pb-4 gap-3">
         <div *ngFor="let status of columns" class="min-vw-25 bg-white rounded shadow-sm p-3 border"
             style="min-width: 300px;">
             <h2 class="h6 fw-bold text-secondary mb-3 d-flex justify-content-between align-items-center">
@@ -18,6 +19,38 @@
                 <app-task-card *ngFor="let task of getTasksByStatus(status)" [task]="task" [currentUser]="currentUser"
                     [userMap]="userMap" (action)="handleAction($event, task)">
                 </app-task-card>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile View: Vertical Accordion List -->
+    <div class="d-md-none d-flex flex-column gap-3">
+        <div class="accordion" id="kanbanAccordion">
+            <div *ngFor="let status of columns; let i = index" class="accordion-item shadow-sm border-0 mb-2">
+                <h2 class="accordion-header" [id]="'heading' + i">
+                    <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#collapse' + i" aria-expanded="false"
+                        [attr.aria-controls]="'collapse' + i">
+                        <div class="d-flex w-100 justify-content-between align-items-center me-2">
+                            <span>{{ statusMap[status] }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ getTasksByStatus(status).length }}</span>
+                        </div>
+                    </button>
+                </h2>
+                <div [id]="'collapse' + i" class="accordion-collapse collapse" [attr.aria-labelledby]="'heading' + i"
+                    data-bs-parent="#kanbanAccordion">
+                    <div class="accordion-body bg-light p-2">
+                        <div class="d-flex flex-column gap-2">
+                            <app-task-card *ngFor="let task of getTasksByStatus(status)" [task]="task"
+                                [currentUser]="currentUser" [userMap]="userMap" (action)="handleAction($event, task)">
+                            </app-task-card>
+                            <div *ngIf="getTasksByStatus(status).length === 0"
+                                class="text-center text-muted py-2 small">
+                                لا توجد مهام في هذه القائمة
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
